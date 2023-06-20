@@ -32,15 +32,25 @@ function App() {
       characterList = characterList + specialCharacters;
     }
     setPassword(createRandomPassword(characterList));
+  };
 
-    function createRandomPassword(characterList) {
-      let password = "";
-      let characterListLength = characterList.length;
-      for (let i = 0; i < passwordLength; i++) {
-        let randomIndex = Math.round(Math.random() * characterListLength);
-        password = password + characterList.charAt(randomIndex);
-      }
-      return password;
+  function createRandomPassword(characterList) {
+    let password = "";
+    let characterListLength = characterList.length;
+    for (let i = 0; i < passwordLength; i++) {
+      let randomIndex = Math.round(Math.random() * characterListLength);
+      password = password + characterList.charAt(randomIndex);
+    }
+    return password;
+  }
+
+  const handleCopyClick = () => {
+    if (password.length > 0) {
+      navigator.clipboard.writeText(password);
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
     }
   };
 
@@ -56,16 +66,9 @@ function App() {
             value={password}
           />
           <button
-            onClick={() => {
-              if (password.length > 0) {
-                navigator.clipboard.writeText(password);
-                setCopied(true);
-                setInterval(() => {
-                  setCopied(false);
-                }, 2000);
-              }
-            }}
-            className="bg-blue-500 text-white cursor-pointer w-3/12 text-sm font-medium lg:font-semibold rounded-md"
+            onClick={handleCopyClick}
+            className="w-3/12 inline-block rounded-lg text-white bg-indigo-500 font-semibold 
+            text-sm hover:-translate-y-0.5 transform transition active:bg-indigo-600"
           >
             {copied ? "Copied!" : "Copy text"}
           </button>
@@ -165,7 +168,8 @@ function App() {
         <div>
           <button
             onClick={handleGeneratePassword}
-            className="mt-2 w-full bg-blue-500 text-white p-3 rounded-md font-bold text-lg"
+            className="mt-2 w-full px-5 py-3 inline-block rounded-lg text-white bg-indigo-500 font-semibold 
+            text-sm uppercase tracking-wider sm:text-base hover:-translate-y-0.5 transform transition active:bg-indigo-600"
           >
             Generate Password
           </button>
