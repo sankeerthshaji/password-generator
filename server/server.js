@@ -11,7 +11,7 @@ const app = express();
 
 //middleware
 app.use(cors({
-  origin:['https://passgenxapp.netlify.app/', 'http://localhost:3000']
+  origin:['https://passgenxapp.netlify.app', 'http://localhost:3000']
 }));
 app.use(bodyParser.json());
 
