@@ -24,11 +24,6 @@ function Navbar() {
         <div className="font-black text-3xl cursor-pointer flex items-center font-mono text-blue-900">
           <Link to="/">PassGenX</Link>
         </div>
-        <div
-          onClick={() => setOpen(!open)}
-          className="lg:hidden text-3xl absolute right-8 top-6 cursor-pointer"
-        >
-        </div>
         {user && <Button onClick={handleLogout}>Logout</Button>}
         {!user && (
           <Link to="/login">

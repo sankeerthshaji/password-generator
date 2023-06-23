@@ -3,7 +3,7 @@ import React from "react";
 function Button(props) {
   return (
     <button
-      className="bg-blue-100 text-blue-900 p-2 sm:py-2 sm:px-6 rounded text-xl lg:ml-16"
+      className="bg-blue-100 text-blue-900 p-2 sm:py-2 sm:px-6 rounded text-xl"
       onClick={props.onClick}
     >
       {props.children}
