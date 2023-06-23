@@ -3,6 +3,10 @@ const { signup, login, addPassword, fetchPasswords, deletePassword } = require("
 const requireAuthUser = require("../middlewares/authorization.js");
 const router = express.Router();
 
+router.get("/", (req, res) => {
+    res.send("Welcome to the Password Manager API");
+});
+
 router.post("/signup", signup);
 
 router.post("/login", login);
