@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import image3 from "../assets/img/image3.jpeg";
-import Modal from "./modal";
+import Modal from "./Modal";
 import PasswordGenerator from "./PasswordGenerator";
 import AddPassword from "./AddPassword";
 import { useSelector } from "react-redux";
