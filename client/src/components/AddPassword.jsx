@@ -1,13 +1,22 @@
 import { useState } from "react";
+import axios from "../axios/axios";
+import { ClipLoader } from "react-spinners";
+import { useSelector } from "react-redux";
+import useLogout from "../hooks/useLogout";
+import { toast } from "react-toastify";
 
-function App() {
+function AddPassword({ onClose, fetchPasswords }) {
+  const user = useSelector((state) => state.user);
   const [password, setPassword] = useState("");
-  const [passwordLength, setPasswordLength] = useState(6);
+  const [passwordLength, setPasswordLength] = useState(4);
   const [includeUppercase, setIncludeUpperCase] = useState(false);
   const [includeLowercase, setIncludeLowercase] = useState(false);
   const [includeNumbers, setIncludeNumbers] = useState(false);
   const [includeSymbols, setIncludeSymbols] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [appName, setAppName] = useState("");
+  const [userName, setUserName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { logout } = useLogout();
 
   const numbers = "0123456789";
   const upperCaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -47,31 +56,104 @@ function App() {
   const handleCopyClick = () => {
     if (password.length > 0) {
       navigator.clipboard.writeText(password);
-      setCopied(true);
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
+      toast.success("Password copied to clipboard");
+    }
+  };
+
+  const handleSavePassword = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        "/addPassword",
+        { appName, userName, password },
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        }
+      );
+      toast.success(response?.data?.message);
+      setPassword("");
+      setPasswordLength(6);
+      setIncludeUpperCase(false);
+      setIncludeLowercase(false);
+      setIncludeNumbers(false);
+      setIncludeSymbols(false);
+      setAppName("");
+      setUserName("");
+      onClose();
+      fetchPasswords();
+    } catch (err) {
+      if (err?.response?.status === 401) {
+        // Handle 401 errors
+        logout();
+        console.error(err);
+      } else {
+        console.error(err);
+        toast.error(err?.response?.data?.error) || "Something went wrong";
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="bg-[#201f1f] h-screen flex items-center">
-      <div className="bg-white w-[26rem] max-w-full mx-auto p-7 space-y-6">
-        <h1 className="text-2xl font-bold">Password Generator</h1>
+    <>
+      <div className="bg-white space-y-5">
+        <h1 className="text-2xl font-bold">Add Password</h1>
         <div className="flex justify-between">
           <input
-            className="w-9/12 mr-2.5"
+            className="w-full rounded-md"
             type="text"
             readOnly
             value={password}
           />
+        </div>
+        <div className="flex gap-3">
           <button
             onClick={handleCopyClick}
-            className="w-3/12 inline-block rounded-lg text-white bg-indigo-500 font-semibold 
-            text-sm hover:-translate-y-0.5 transform transition active:bg-indigo-600"
+            className="w-1/2 px-2 sm:px-3 py-2 rounded-md text-indigo-900 bg-white font-semibold uppsercase border border-indigo-900 text-sm sm:text-base"
           >
-            {copied ? "Copied!" : "Copy text"}
+            Copy Password
           </button>
+          <button
+            onClick={handleGeneratePassword}
+            className="w-1/2 px-2 sm:px-3 py-2 text-white bg-indigo-500 font-semibold active:bg-indigo-900 rounded-md text-sm sm:text-base"
+          >
+            Generate New
+          </button>
+        </div>
+        <div>
+          <label
+            htmlFor="appName"
+            className="text-sm font-medium text-gray-700"
+          >
+            App Name
+          </label>
+          <input
+            className="w-full border-2 border-gray-300 p-2 rounded-md"
+            type="text"
+            id="appName"
+            placeholder="App Name"
+            value={appName}
+            onChange={(e) => setAppName(e.target.value)}
+          />
+        </div>
+        <div>
+          <label
+            htmlFor="userName"
+            className="text-sm font-medium text-gray-700"
+          >
+            User Name
+          </label>
+          <input
+            className="w-full border-2 border-gray-300 p-2 rounded-md"
+            type="text"
+            id="userName"
+            placeholder="User Name"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+          />
         </div>
         <div className="flex justify-between items-center">
           <div>
@@ -83,7 +165,7 @@ function App() {
             <input
               id="length"
               className="w-16 h-6"
-              defaultValue={passwordLength}
+              value={passwordLength}
               min={4}
               max={20}
               type="number"
@@ -165,18 +247,33 @@ function App() {
             />
           </div>
         </div>
-        <div>
+        <div className="flex gap-3">
           <button
-            onClick={handleGeneratePassword}
-            className="mt-2 w-full px-5 py-3 inline-block rounded-lg text-white bg-indigo-500 font-semibold 
-            text-sm uppercase tracking-wider sm:text-base hover:-translate-y-0.5 transform transition active:bg-indigo-600"
+            onClick={() => onClose()}
+            className="w-1/2 px-2 sm:px-3 py-2 rounded-md text-indigo-900 bg-white font-semibold uppsercase border border-indigo-900 text-sm sm:text-base"
           >
-            Generate Password
+            Cancel
+          </button>
+          <button
+            onClick={handleSavePassword}
+            disabled={loading || !password || !appName || !userName}
+            className={`w-1/2 px-2 sm:px-3 py-2 rounded-md text-white font-semibold text-sm sm:text-base 
+            ${
+              !password || !appName || !userName
+                ? "bg-indigo-400 cursor-not-allowed"
+                : "bg-indigo-500 active:bg-indigo-900"
+            }`}
+          >
+            {loading ? (
+              <ClipLoader size={20} color={"#fff"} />
+            ) : (
+              "Save Password"
+            )}
           </button>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
-export default App;
+export default AddPassword;
